@@ -1,6 +1,6 @@
 @{ ViewData["Title"] = "Home Page"; }
 
-<div asp-prerender-module="ClientApp/dist/main-server" asp-prerender-data='new { counter = 5 }'>Loading...</div>
+<div id="app" asp-prerender-module="ClientApp/dist/main-server" asp-prerender-data='new { counter = 5 }'>Loading...</div>
 
 
 @section scripts {

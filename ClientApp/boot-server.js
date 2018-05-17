@@ -1,31 +1,32 @@
 import { createServerRenderer } from 'aspnet-prerendering';
 import { createRenderer } from 'vue-server-renderer';
-import { app } from './app';
+import Vue from 'vue';
 import configureStore from './configureStore';
-
-
+//import App from './components/app-root';
+import App from './components/temp-component';
+import router from './router';
 
 export default createServerRenderer(async function (params) {
-	//return new Promise((resolve, reject) => {
-
-
 	const basename = params.baseUrl.substring(0, params.baseUrl.length - 1);
 	const urlAfterBasename = params.url.substring(basename.length);
 	const store = configureStore(null, params.data);
 
-	//store.dispatch(urlAfterBasename); // route to the incoming url
+	store.dispatch(urlAfterBasename); // route to the incoming url
+
+	const vueApp = new Vue({
+		store,
+		router,
+		...App
+	});
+
 
 	const renderer = createRenderer();
-	const html = await renderer.renderToString(app);
-	console.log(html);
+	const html = await renderer.renderToString(vueApp);
 
-	//params.domainTasks.then(() => {
-	//	resolve({
-	//		html,
-	//		globals: { initialVuexState: state.getState() }
-	//	})
-	//});
+	await params.domainTasks;
 
-	return { html };
-	//});
+	return {
+		html,
+		globals: { initialVuexState: store.state }
+	};
 });

@@ -13,7 +13,7 @@
 </template>
 
 <script>
-	//import Vue from 'vue'
+	import Vue from 'vue'
 	//import CounterExample from './counter-example'
 	//import FetchData from './fetch-data'
 	//import HomePage from './home-page'
@@ -27,7 +27,7 @@
 	export default {
 		data() {
 			return {
-				//message: 'Client side rendered!'
+				message: 'Client side rendered!'
 			}
 		}
 	}
