@@ -1,12 +1,12 @@
 const path = require('path');
 const webpack = require('webpack');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 //const CheckerPlugin = require('awesome-typescript-loader').CheckerPlugin;
 const merge = require('webpack-merge');
 
 module.exports = (env) => {
 	const isDevBuild = !(env && env.prod);
-	const extractCss = new ExtractTextPlugin('site.css');
 
 	const sharedConfig = () => ({
 		stats: { modules: false },
@@ -31,54 +31,38 @@ module.exports = (env) => {
 				{ test: /\.jsx?$/, include: /ClientApp/, use: 'babel-loader' },
 				{ test: /\.(png|jpg|jpeg|gif|svg)$/, use: 'url-loader?limit=25000' },
 				{ test: /\.woff2?(\?v=[0-9]\.[0-9])?$/, use: 'url-loader?limit=10000&mimetype=application/font-woff' },
-				{ test: /font.*\.(tff|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, use: 'file-loader' }
+				{ test: /font.*\.(tff|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, use: 'url-loader?limit=100000' },
+				{
+					test: /\.s?[ca]ss$/, use: [
+						isDevBuild ? 'style-loader' : MiniCssExtractPlugin.loader,
+						isDevBuild ? 'css-loader' : 'css-loader?minimize',
+						'sass-loader'
+					]
+				}
 			]
 		},
-		//plugins: [new CheckerPlugin()]
+		plugins: [
+			//new CheckerPlugin(),
+			new VueLoaderPlugin()
+		]
 	});
 
 	const clientBundleOutputDir = './wwwroot/dist';
 	const clientBundleConfig = merge(sharedConfig(), {
+		mode: 'development',
 		entry: { 'main': './ClientApp/boot-app.js' },
 		module: {
 			rules: [
-				{
-					test: /\.css$/,
-					use: extractCss.extract({
-						use: {
-							loader: isDevBuild ? 'css-loader' : 'css-loader?minimize',
-							options: {
-								sourceMap: true
-							}
-						}
-					})
-				},
-				{
-					test: /\.s(c|a)ss$/,
-					use: extractCss.extract({
-						use: [{
-							loader: isDevBuild ? 'css-loader' : 'css-loader?minimize',
-							options: {
-								sourceMap: true
-							}
-						}, {
-							loader: 'sass-loader',
-							options: {
-								sourceMap: true
-							}
-						}]
-					})
-				}
+				
 			]
 		},
 		output: {
 			path: path.join(__dirname, clientBundleOutputDir)
 		},
 		plugins: [
-			extractCss,
 			new webpack.DllReferencePlugin({
 				context: __dirname,
-				mainfest: require('./wwwroot/dist/vendor-manifest.json')
+				manifest: require('./wwwroot/dist/vendor-manifest.json')
 			}),
 			new webpack.SourceMapDevToolPlugin({
 				filename: '[file].map',
@@ -94,6 +78,7 @@ module.exports = (env) => {
 	});
 
 	const serverBundleConfig = merge(sharedConfig(), {
+		mode: 'production',
 		resolve: { mainFields: ['main'] },
 		entry: {
 			'main-server': './ClientApp/boot-server.js'
