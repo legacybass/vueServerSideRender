@@ -3,7 +3,7 @@ import Vue from 'vue'
 //import router from './router'
 //import store from './store'
 //import { sync } from 'vuex-router-sync'
-import App from 'components/app-root'
+//import App from 'components/app-root'
 
 //Vue.prototype.$http = axios;
 
@@ -12,7 +12,11 @@ import App from 'components/app-root'
 const app = new Vue({
 	//store,
 	//router,
-	...App
+	//...App,
+	data: {
+		message: 'blah'
+	},
+	template: '<h1>{{ message }}</h1>'
 })
 
 export {
