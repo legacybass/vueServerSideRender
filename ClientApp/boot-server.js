@@ -1,7 +1,6 @@
 import { createServerRenderer } from 'aspnet-prerendering';
 import { createRenderer } from 'vue-server-renderer';
-//const renderer = require('vue-server-renderer').createRenderer();
-//const app = require('./app').default;
+import { app } from './app';
 
 export default createServerRenderer(function (params) {
 	return new Promise((resolve, reject) => {
